@@ -49,7 +49,7 @@ const Home = () => {
     if (!title) return;
 
     const response = await axios.post(
-      "http://localhost:3000/api/chat",
+      "https://cohort-chat-gpt.onrender.com/api/chat",
       {
         title,
       },
@@ -65,7 +65,9 @@ const Home = () => {
   // Ensure at least one chat exists initially
   useEffect(() => {
     axios
-      .get("http://localhost:3000/api/chat", { withCredentials: true })
+      .get("https://cohort-chat-gpt.onrender.com/api/chat", {
+        withCredentials: true,
+      })
       .then((response) => {
         dispatch(setChats(response.data.chats.reverse()));
       });
@@ -127,7 +129,7 @@ const Home = () => {
 
   const getMessages = async (chatId) => {
     const response = await axios.get(
-      `http://localhost:3000/api/chat/messages/${chatId}`,
+      `https://cohort-chat-gpt.onrender.com/api/chat/messages/${chatId}`,
       { withCredentials: true }
     );
 
