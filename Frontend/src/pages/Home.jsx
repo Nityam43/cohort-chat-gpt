@@ -72,7 +72,7 @@ const Home = () => {
         dispatch(setChats(response.data.chats.reverse()));
       });
 
-    const tempSocket = io("http://localhost:3000", {
+    const tempSocket = io("https://cohort-chat-gpt.onrender.com", {
       withCredentials: true,
     });
 

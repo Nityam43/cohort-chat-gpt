@@ -15,7 +15,7 @@ const app = express();
 
 /* using middlewares */
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: ['http://localhost:5173', 'https://cohort-chat-gpt.onrender.com'],
     credentials: true
 }))
 app.use(express.json());
