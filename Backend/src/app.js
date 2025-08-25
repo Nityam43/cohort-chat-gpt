@@ -24,6 +24,20 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 
 
+/* Health check endpoint */
+app.get('/health', (req, res) => {
+    res.json({ 
+        status: 'OK', 
+        timestamp: new Date().toISOString(),
+        env: {
+            nodeEnv: process.env.NODE_ENV,
+            hasJwtSecret: !!process.env.JWT_SECRET,
+            hasMongoUri: !!process.env.MONGO_URI,
+            port: process.env.PORT || 3000
+        }
+    });
+});
+
 /* Using Routes */
 app.use('/api/auth', authRoutes);
 app.use('/api/chat', chatRoutes);
