@@ -28,6 +28,8 @@ const Home = () => {
   const isSending = useSelector((state) => state.chat.isSending);
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const [socket, setSocket] = useState(null);
+  
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
   const activeChat = chats.find((c) => c.id === activeChatId) || null;
 
@@ -49,7 +51,7 @@ const Home = () => {
     if (!title) return;
 
     const response = await axios.post(
-      "https://cohort-chat-gpt.onrender.com/api/chat",
+      `${API_URL}/api/chat`,
       {
         title,
       },
@@ -65,14 +67,14 @@ const Home = () => {
   // Ensure at least one chat exists initially
   useEffect(() => {
     axios
-      .get("https://cohort-chat-gpt.onrender.com/api/chat", {
+      .get(`${API_URL}/api/chat`, {
         withCredentials: true,
       })
       .then((response) => {
         dispatch(setChats(response.data.chats.reverse()));
       });
 
-    const tempSocket = io("https://cohort-chat-gpt.onrender.com", {
+    const tempSocket = io(API_URL, {
       withCredentials: true,
     });
 
@@ -129,7 +131,7 @@ const Home = () => {
 
   const getMessages = async (chatId) => {
     const response = await axios.get(
-      `https://cohort-chat-gpt.onrender.com/api/chat/messages/${chatId}`,
+      `${API_URL}/api/chat/messages/${chatId}`,
       { withCredentials: true }
     );
 

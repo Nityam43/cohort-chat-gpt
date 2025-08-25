@@ -6,6 +6,8 @@ const Login = () => {
   const [form, setForm] = useState({ email: "", password: "" });
   const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
+  
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -20,7 +22,7 @@ const Login = () => {
 
     axios
       .post(
-        "https://cohort-chat-gpt.onrender.com/api/auth/login",
+        `${API_URL}/api/auth/login`,
         {
           email: form.email,
           password: form.password,

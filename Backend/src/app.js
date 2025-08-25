@@ -29,7 +29,12 @@ app.use('/api/auth', authRoutes);
 app.use('/api/chat', chatRoutes);
 
 
-app.get("*name", (req, res) => {
+// Catch-all handler: send back React's index.html file for any non-API routes
+app.get('*', (req, res) => {
+    // Don't serve index.html for API routes
+    if (req.path.startsWith('/api/')) {
+        return res.status(404).json({ message: 'API endpoint not found' });
+    }
     res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
