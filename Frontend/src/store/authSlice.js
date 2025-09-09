@@ -13,15 +13,30 @@ export const checkAuthStatus = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       console.log("Checking auth status with API_URL:", API_URL);
+
+      // Add timeout to prevent hanging
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
       const response = await axios.get(`${API_URL}/api/auth/me`, {
         withCredentials: true,
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
       console.log("Auth check successful:", response.data);
       return response.data.user;
     } catch (error) {
       console.error("Auth check failed:", error);
       console.error("Error response:", error.response?.data);
       console.error("Error status:", error.response?.status);
+      console.error("Error message:", error.message);
+
+      // Handle timeout specifically
+      if (error.name === "AbortError") {
+        return rejectWithValue("Authentication check timed out");
+      }
+
       return rejectWithValue(
         error.response?.data?.message || "Not authenticated"
       );
