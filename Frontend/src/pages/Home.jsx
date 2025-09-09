@@ -7,6 +7,8 @@ import ChatComposer from "../components/chat/ChatComposer.jsx";
 import "../components/chat/ChatLayout.css";
 import { fakeAIReply } from "../components/chat/aiClient.js";
 import { useDispatch, useSelector } from "react-redux";
+import { logoutUser } from "../store/authSlice";
+import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import {
   ensureInitialChat,
@@ -22,13 +24,17 @@ import {
 
 const Home = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const chats = useSelector((state) => state.chat.chats);
   const activeChatId = useSelector((state) => state.chat.activeChatId);
   const input = useSelector((state) => state.chat.input);
   const isSending = useSelector((state) => state.chat.isSending);
+  const { isAuthenticated, isLoading: authLoading } = useSelector(
+    (state) => state.auth
+  );
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const [socket, setSocket] = useState(null);
-  
+
   const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
   const activeChat = chats.find((c) => c.id === activeChatId) || null;
@@ -130,10 +136,9 @@ const Home = () => {
   };
 
   const getMessages = async (chatId) => {
-    const response = await axios.get(
-      `${API_URL}/api/chat/messages/${chatId}`,
-      { withCredentials: true }
-    );
+    const response = await axios.get(`${API_URL}/api/chat/messages/${chatId}`, {
+      withCredentials: true,
+    });
 
     console.log("Fetched messages:", response.data.messages);
 
@@ -147,6 +152,41 @@ const Home = () => {
 
   return (
     <div className="chat-layout minimal">
+      {/* Top-right auth controls */}
+      <div
+        style={{
+          position: "fixed",
+          top: 10,
+          right: 10,
+          zIndex: 50,
+          display: "flex",
+          gap: 8,
+        }}
+      >
+        {!isAuthenticated ? (
+          <>
+            <Link to="/login" className="small-btn">
+              Login
+            </Link>
+            <Link
+              to="/register"
+              className="small-btn"
+              style={{ background: "#0d0d0d" }}
+            >
+              Register
+            </Link>
+          </>
+        ) : (
+          <button
+            className="small-btn"
+            onClick={() => dispatch(logoutUser())}
+            disabled={authLoading}
+            title="Logout"
+          >
+            {authLoading ? "Logging out..." : "Logout"}
+          </button>
+        )}
+      </div>
       <ChatMobileBar
         onToggleSidebar={() => setSidebarOpen((o) => !o)}
         onNewChat={handleNewChat}
