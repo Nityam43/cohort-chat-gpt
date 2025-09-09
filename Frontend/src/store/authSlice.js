@@ -12,7 +12,9 @@ export const checkAuthStatus = createAsyncThunk(
   "auth/checkAuthStatus",
   async (_, { rejectWithValue }) => {
     try {
+      console.log("=== AUTH CHECK START ===");
       console.log("Checking auth status with API_URL:", API_URL);
+      console.log("Production mode:", import.meta.env.PROD);
 
       // Add timeout to prevent hanging
       const controller = new AbortController();
@@ -21,19 +23,31 @@ export const checkAuthStatus = createAsyncThunk(
       const response = await axios.get(`${API_URL}/api/auth/me`, {
         withCredentials: true,
         signal: controller.signal,
+        timeout: 8000, // Additional axios timeout
       });
 
       clearTimeout(timeoutId);
       console.log("Auth check successful:", response.data);
+      console.log("=== AUTH CHECK SUCCESS ===");
       return response.data.user;
     } catch (error) {
-      console.error("Auth check failed:", error);
-      console.error("Error response:", error.response?.data);
-      console.error("Error status:", error.response?.status);
-      console.error("Error message:", error.message);
+      console.error("=== AUTH CHECK FAILED ===");
+      console.error("Error details:", {
+        name: error.name,
+        message: error.message,
+        code: error.code,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        config: {
+          url: error.config?.url,
+          method: error.config?.method,
+          withCredentials: error.config?.withCredentials,
+        },
+      });
 
       // Handle timeout specifically
-      if (error.name === "AbortError") {
+      if (error.name === "AbortError" || error.code === "ECONNABORTED") {
         console.log("Auth check timed out - treating as not authenticated");
         return rejectWithValue("Authentication check timed out");
       }
