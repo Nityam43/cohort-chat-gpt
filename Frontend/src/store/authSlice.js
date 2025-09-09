@@ -1,18 +1,27 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.PROD
+    ? "https://cohort-chat-gpt.onrender.com"
+    : "http://localhost:3000");
 
 // Async thunk to check authentication status
 export const checkAuthStatus = createAsyncThunk(
   "auth/checkAuthStatus",
   async (_, { rejectWithValue }) => {
     try {
+      console.log("Checking auth status with API_URL:", API_URL);
       const response = await axios.get(`${API_URL}/api/auth/me`, {
         withCredentials: true,
       });
+      console.log("Auth check successful:", response.data);
       return response.data.user;
     } catch (error) {
+      console.error("Auth check failed:", error);
+      console.error("Error response:", error.response?.data);
+      console.error("Error status:", error.response?.status);
       return rejectWithValue(
         error.response?.data?.message || "Not authenticated"
       );
