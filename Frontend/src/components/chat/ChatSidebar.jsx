@@ -1,6 +1,5 @@
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { logoutUser } from "../../store/authSlice";
+import { useSelector } from "react-redux";
 import "./ChatSidebar.css";
 
 const ChatSidebar = ({
@@ -10,12 +9,7 @@ const ChatSidebar = ({
   onNewChat,
   open,
 }) => {
-  const dispatch = useDispatch();
-  const { user, isLoading } = useSelector((state) => state.auth);
-
-  const handleLogout = () => {
-    dispatch(logoutUser());
-  };
+  const { user } = useSelector((state) => state.auth);
 
   return (
     <aside
@@ -43,7 +37,7 @@ const ChatSidebar = ({
         {chats.length === 0 && <p className="empty-hint">No chats yet.</p>}
       </nav>
 
-      {/* User info and logout section */}
+      {/* User info (no logout button) */}
       <div className="sidebar-footer">
         <div className="user-info">
           <div className="user-avatar">
@@ -60,14 +54,6 @@ const ChatSidebar = ({
             <div className="user-email">{user?.email}</div>
           </div>
         </div>
-        <button
-          className="logout-btn"
-          onClick={handleLogout}
-          disabled={isLoading}
-          title="Logout"
-        >
-          {isLoading ? "Logging out..." : "Logout"}
-        </button>
       </div>
     </aside>
   );
