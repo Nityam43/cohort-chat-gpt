@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { registerUser, clearError } from "../store/authSlice";
 
 const Register = () => {
   const [form, setForm] = useState({
@@ -9,10 +10,18 @@ const Register = () => {
     lastname: "",
     password: "",
   });
-  const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
-  
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+  const dispatch = useDispatch();
+  const { isLoading, error, isAuthenticated } = useSelector(
+    (state) => state.auth
+  );
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/home");
+    }
+  }, [isAuthenticated, navigate]);
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -21,40 +30,17 @@ const Register = () => {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setSubmitting(true);
-    console.log(form);
-
-    axios
-      .post(
-        `${API_URL}/api/auth/register`,
-        {
-          email: form.email,
-          fullName: {
-            firstName: form.firstname,
-            lastName: form.lastname,
-          },
-          password: form.password,
+    dispatch(clearError());
+    dispatch(
+      registerUser({
+        email: form.email,
+        fullName: {
+          firstName: form.firstname,
+          lastName: form.lastname,
         },
-        {
-          withCredentials: true,
-        }
-      )
-      .then((res) => {
-        console.log(res);
-        navigate("/");
+        password: form.password,
       })
-      .catch((err) => {
-        console.error(err);
-        alert("Registration failed (placeholder)");
-      });
-
-    try {
-      // Placeholder: integrate real registration logic / API call.
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setSubmitting(false);
-    }
+    );
   }
 
   return (
@@ -116,8 +102,19 @@ const Register = () => {
               minLength={6}
             />
           </div>
-          <button type="submit" className="primary-btn" disabled={submitting}>
-            {submitting ? "Creating..." : "Create Account"}
+          {error && (
+            <div
+              style={{
+                color: "red",
+                marginBottom: "10px",
+                textAlign: "center",
+              }}
+            >
+              {error}
+            </div>
+          )}
+          <button type="submit" className="primary-btn" disabled={isLoading}>
+            {isLoading ? "Creating..." : "Create Account"}
           </button>
         </form>
         <p className="auth-alt">
