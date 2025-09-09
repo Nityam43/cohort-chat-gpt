@@ -31,6 +31,12 @@ const AuthRedirect = () => {
 
   // Show loading spinner while checking authentication
   if (isLoading || !hasCheckedAuth) {
+    console.log(
+      "AuthRedirect: Still loading or checking auth. isLoading:",
+      isLoading,
+      "hasCheckedAuth:",
+      hasCheckedAuth
+    );
     return (
       <div className="center-min-h-screen">
         <div className="auth-card">
@@ -65,14 +71,22 @@ const AuthRedirect = () => {
 
   // If authenticated, redirect to home (chat interface)
   if (isAuthenticated) {
-    console.log("User is authenticated, redirecting to /home");
+    console.log("AuthRedirect: User is authenticated, redirecting to /home");
     return <Navigate to="/home" replace />;
   }
 
-  // If not authenticated, redirect to login (not register)
+  // If not authenticated, redirect to login
   console.log(
-    "User is not authenticated, redirecting to /login. Error:",
+    "AuthRedirect: User is not authenticated, redirecting to /login. Error:",
     error
+  );
+  console.log(
+    "AuthRedirect: Auth state - isAuthenticated:",
+    isAuthenticated,
+    "hasCheckedAuth:",
+    hasCheckedAuth,
+    "isLoading:",
+    isLoading
   );
   return <Navigate to="/login" replace />;
 };

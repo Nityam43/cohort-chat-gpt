@@ -34,9 +34,25 @@ export const checkAuthStatus = createAsyncThunk(
 
       // Handle timeout specifically
       if (error.name === "AbortError") {
+        console.log("Auth check timed out - treating as not authenticated");
         return rejectWithValue("Authentication check timed out");
       }
 
+      // Handle network errors
+      if (!error.response) {
+        console.log("Network error - treating as not authenticated");
+        return rejectWithValue("Network error - not authenticated");
+      }
+
+      // Handle 401 specifically
+      if (error.response?.status === 401) {
+        console.log("401 Unauthorized - user is not authenticated");
+        return rejectWithValue("Not authenticated");
+      }
+
+      console.log(
+        "Auth check failed with error - treating as not authenticated"
+      );
       return rejectWithValue(
         error.response?.data?.message || "Not authenticated"
       );
@@ -115,6 +131,13 @@ const authSlice = createSlice({
     setHasCheckedAuth: (state, action) => {
       state.hasCheckedAuth = action.payload;
     },
+    resetAuthState: (state) => {
+      state.user = null;
+      state.isAuthenticated = false;
+      state.isLoading = false;
+      state.error = null;
+      state.hasCheckedAuth = false;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -136,6 +159,10 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
         state.hasCheckedAuth = true;
         state.error = action.payload;
+        console.log(
+          "Auth check rejected, user is not authenticated:",
+          action.payload
+        );
       })
       // Login
       .addCase(loginUser.pending, (state) => {
@@ -184,5 +211,6 @@ const authSlice = createSlice({
   },
 });
 
-export const { clearError, setHasCheckedAuth } = authSlice.actions;
+export const { clearError, setHasCheckedAuth, resetAuthState } =
+  authSlice.actions;
 export default authSlice.reducer;
