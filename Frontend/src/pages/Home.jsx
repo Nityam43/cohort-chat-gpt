@@ -35,7 +35,11 @@ const Home = () => {
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const [socket, setSocket] = useState(null);
 
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+  const API_URL =
+    import.meta.env.VITE_API_URL ||
+    (import.meta.env.PROD
+      ? "https://cohort-chat-gpt.onrender.com"
+      : "http://localhost:3000");
 
   const activeChat = chats.find((c) => c.id === activeChatId) || null;
 
