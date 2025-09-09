@@ -56,14 +56,6 @@ app.get("/health", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/chat", chatRoutes);
 
-// Import auth middleware for protected routes
-const authMiddleware = require("./middlewares/auth.middleware");
-
-// Protected route for /home - check authentication server-side
-app.get("/home", authMiddleware.authUser, (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/index.html"));
-});
-
 // Catch-all handler: send back React's index.html file for any non-API routes
 app.get("*", (req, res) => {
   // Don't serve index.html for API routes

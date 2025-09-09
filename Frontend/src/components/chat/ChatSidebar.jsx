@@ -1,22 +1,40 @@
-import React from 'react';
-import './ChatSidebar.css';
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { logoutUser } from "../../store/authSlice";
+import "./ChatSidebar.css";
 
+const ChatSidebar = ({
+  chats,
+  activeChatId,
+  onSelectChat,
+  onNewChat,
+  open,
+}) => {
+  const dispatch = useDispatch();
+  const { user, isLoading } = useSelector((state) => state.auth);
 
-const ChatSidebar = ({ chats, activeChatId, onSelectChat, onNewChat, open }) => {
+  const handleLogout = () => {
+    dispatch(logoutUser());
+  };
 
-
-  
   return (
-    <aside className={"chat-sidebar " + (open ? 'open' : '')} aria-label="Previous chats">
+    <aside
+      className={"chat-sidebar " + (open ? "open" : "")}
+      aria-label="Previous chats"
+    >
       <div className="sidebar-header">
         <h2>Chats</h2>
-        <button className="small-btn" onClick={onNewChat}>New</button>
+        <button className="small-btn" onClick={onNewChat}>
+          New
+        </button>
       </div>
       <nav className="chat-list" aria-live="polite">
-        {chats.map(c => (
+        {chats.map((c) => (
           <button
             key={c._id}
-            className={"chat-list-item " + (c._id === activeChatId ? 'active' : '')}
+            className={
+              "chat-list-item " + (c._id === activeChatId ? "active" : "")
+            }
             onClick={() => onSelectChat(c._id)}
           >
             <span className="title-line">{c.title}</span>
@@ -24,6 +42,33 @@ const ChatSidebar = ({ chats, activeChatId, onSelectChat, onNewChat, open }) => 
         ))}
         {chats.length === 0 && <p className="empty-hint">No chats yet.</p>}
       </nav>
+
+      {/* User info and logout section */}
+      <div className="sidebar-footer">
+        <div className="user-info">
+          <div className="user-avatar">
+            {user?.fullName?.firstName?.charAt(0) ||
+              user?.email?.charAt(0) ||
+              "U"}
+          </div>
+          <div className="user-details">
+            <div className="user-name">
+              {user?.fullName?.firstName && user?.fullName?.lastName
+                ? `${user.fullName.firstName} ${user.fullName.lastName}`
+                : user?.email || "User"}
+            </div>
+            <div className="user-email">{user?.email}</div>
+          </div>
+        </div>
+        <button
+          className="logout-btn"
+          onClick={handleLogout}
+          disabled={isLoading}
+          title="Logout"
+        >
+          {isLoading ? "Logging out..." : "Logout"}
+        </button>
+      </div>
     </aside>
   );
 };

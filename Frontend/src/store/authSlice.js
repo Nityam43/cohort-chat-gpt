@@ -12,61 +12,16 @@ export const checkAuthStatus = createAsyncThunk(
   "auth/checkAuthStatus",
   async (_, { rejectWithValue }) => {
     try {
-      console.log("=== AUTH CHECK START ===");
       console.log("Checking auth status with API_URL:", API_URL);
-      console.log("Production mode:", import.meta.env.PROD);
-
-      // Add timeout to prevent hanging
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-
       const response = await axios.get(`${API_URL}/api/auth/me`, {
         withCredentials: true,
-        signal: controller.signal,
-        timeout: 8000, // Additional axios timeout
       });
-
-      clearTimeout(timeoutId);
       console.log("Auth check successful:", response.data);
-      console.log("=== AUTH CHECK SUCCESS ===");
       return response.data.user;
     } catch (error) {
-      console.error("=== AUTH CHECK FAILED ===");
-      console.error("Error details:", {
-        name: error.name,
-        message: error.message,
-        code: error.code,
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-        config: {
-          url: error.config?.url,
-          method: error.config?.method,
-          withCredentials: error.config?.withCredentials,
-        },
-      });
-
-      // Handle timeout specifically
-      if (error.name === "AbortError" || error.code === "ECONNABORTED") {
-        console.log("Auth check timed out - treating as not authenticated");
-        return rejectWithValue("Authentication check timed out");
-      }
-
-      // Handle network errors
-      if (!error.response) {
-        console.log("Network error - treating as not authenticated");
-        return rejectWithValue("Network error - not authenticated");
-      }
-
-      // Handle 401 specifically
-      if (error.response?.status === 401) {
-        console.log("401 Unauthorized - user is not authenticated");
-        return rejectWithValue("Not authenticated");
-      }
-
-      console.log(
-        "Auth check failed with error - treating as not authenticated"
-      );
+      console.error("Auth check failed:", error);
+      console.error("Error response:", error.response?.data);
+      console.error("Error status:", error.response?.status);
       return rejectWithValue(
         error.response?.data?.message || "Not authenticated"
       );
@@ -145,13 +100,6 @@ const authSlice = createSlice({
     setHasCheckedAuth: (state, action) => {
       state.hasCheckedAuth = action.payload;
     },
-    resetAuthState: (state) => {
-      state.user = null;
-      state.isAuthenticated = false;
-      state.isLoading = false;
-      state.error = null;
-      state.hasCheckedAuth = false;
-    },
   },
   extraReducers: (builder) => {
     builder
@@ -173,10 +121,6 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
         state.hasCheckedAuth = true;
         state.error = action.payload;
-        console.log(
-          "Auth check rejected, user is not authenticated:",
-          action.payload
-        );
       })
       // Login
       .addCase(loginUser.pending, (state) => {
@@ -225,6 +169,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { clearError, setHasCheckedAuth, resetAuthState } =
-  authSlice.actions;
+export const { clearError, setHasCheckedAuth } = authSlice.actions;
 export default authSlice.reducer;
