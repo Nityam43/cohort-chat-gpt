@@ -10,9 +10,8 @@ const AppRoutes = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<AuthRedirect />} />
         <Route
-          path="/home"
+          path="/"
           element={
             <ProtectedRoute>
               <Home />
@@ -21,6 +20,8 @@ const AppRoutes = () => {
         />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
+        {/* Optional: keep AuthRedirect route if you want an explicit entry */}
+        <Route path="/start" element={<AuthRedirect />} />
       </Routes>
     </BrowserRouter>
   );

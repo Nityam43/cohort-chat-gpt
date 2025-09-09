@@ -54,9 +54,9 @@ const AuthRedirect = () => {
     );
   }
 
-  // If authenticated, redirect to home (chat interface)
+  // If authenticated, go to main chat at '/'
   if (isAuthenticated) {
-    return <Navigate to="/home" replace />;
+    return <Navigate to="/" replace />;
   }
 
   // If not authenticated, redirect to register (first-time users)
